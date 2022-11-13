@@ -24,21 +24,23 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&connIn)
 	if err != nil {
-		logger.Errorln(err)
-		logger.Fatalf("could not decode ConnIn")
+		logger.Debugln(err)
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "could not decode ConnIn")
 	}
 
-	cID := "01234567890"
 	err = db.PutConn(types.PutConnInput{
-		ConnectionID: cID,
+		ConnectionID: connIn.ConnectionID,
 		Username:     connIn.Username,
 	})
 	if err != nil {
-		logger.Errorln(err)
-		logger.Errorln("could not initiate connection")
-		fmt.Fprintf(w, "could not connect. %s", err)
+		logger.Debugln(err)
+		fmt.Fprintf(w, "could not initiate connection: %s", err)
 		return
 	}
 
-	fmt.Fprintf(w, "connected username: %s with connection id: %s", connIn.Username, cID)
+	_, err = fmt.Fprintf(w, "connected username: %s with connection id: %s", connIn.Username, connIn.ConnectionID)
+	if err != nil {
+		logger.Errorln(err)
+	}
 }

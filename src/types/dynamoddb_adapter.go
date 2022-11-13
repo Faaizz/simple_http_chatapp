@@ -9,12 +9,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
-	"go.uber.org/zap"
-
 	"github.com/Faaizz/simple_http_chatapp/misc"
 )
 
-var logger *zap.SugaredLogger
 var ddbSvc *dynamodb.Client
 
 func init() {
@@ -37,7 +34,7 @@ func (dba *DynamoDBAdapter) SetTableName(tn string) {
 	dba.TableName = tn
 }
 
-func (dba *DynamoDBAdapter) CheckExists() error {
+func (dba *DynamoDBAdapter) CheckExists(ctx context.Context) error {
 	in := dynamodb.DescribeTableInput{
 		TableName: aws.String(dba.TableName),
 	}
@@ -50,8 +47,8 @@ func (dba *DynamoDBAdapter) CheckExists() error {
 }
 
 // PutConn inserts a username and connectionId in the underlying DynamoDB table
-func (dba *DynamoDBAdapter) PutConn(pcIn PutConnInput) error {
-	err := dba.CheckUsername(pcIn.Username)
+func (dba *DynamoDBAdapter) PutConn(ctx context.Context, pcIn PutConnInput) error {
+	err := dba.CheckUsername(ctx, pcIn.Username)
 	if err != nil {
 		return err
 	}
@@ -69,7 +66,7 @@ func (dba *DynamoDBAdapter) PutConn(pcIn PutConnInput) error {
 	}
 
 	_, err = ddbSvc.PutItem(
-		context.TODO(),
+		ctx,
 		&in,
 	)
 	if err != nil {
@@ -80,7 +77,7 @@ func (dba *DynamoDBAdapter) PutConn(pcIn PutConnInput) error {
 }
 
 // CheckUsername checks if username already exists on DynamDB table
-func (dba *DynamoDBAdapter) CheckUsername(username string) error {
+func (dba *DynamoDBAdapter) CheckUsername(ctx context.Context, username string) error {
 	in := dynamodb.GetItemInput{
 		TableName: aws.String(dba.TableName),
 		Key: map[string]dynamodbtypes.AttributeValue{
@@ -89,7 +86,7 @@ func (dba *DynamoDBAdapter) CheckUsername(username string) error {
 			},
 		},
 	}
-	out, err := ddbSvc.GetItem(context.TODO(), &in)
+	out, err := ddbSvc.GetItem(ctx, &in)
 	if err != nil {
 		return err
 	}
