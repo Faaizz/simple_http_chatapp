@@ -72,5 +72,5 @@ func main() {
 	listenIpPort := fmt.Sprintf(":%s", port)
 
 	logger.Infoln("starting server")
-	http.ListenAndServe(listenIpPort, r)
+	logger.Fatal(http.ListenAndServe(listenIpPort, r))
 }
