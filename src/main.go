@@ -11,6 +11,7 @@ import (
 	"github.com/Faaizz/simple_http_chatapp/business"
 	"github.com/Faaizz/simple_http_chatapp/db"
 	"github.com/Faaizz/simple_http_chatapp/misc"
+	"github.com/Faaizz/simple_http_chatapp/msg"
 	"github.com/Faaizz/simple_http_chatapp/types"
 )
 
@@ -48,12 +49,19 @@ func main() {
 		logger.Fatalf("table does not exist %v", err)
 	}
 
+	// setup message gateway adapter
+	var mga types.MsgGwAdapter
+	mga = &types.AWSApiGwAdapter{}
+
+	msg.SetMsgGwAdapter(mga)
+
 	// setup routing
 	r := mux.NewRouter()
 
 	r.HandleFunc("/connect", business.ConnectHandler).Methods("POST")
 	r.HandleFunc("/online", business.OnlineHandler).Methods("GET")
 	r.HandleFunc("/disconnect", business.DisconnectHandler).Methods("GET")
+	r.HandleFunc("/message", business.MessageHandler).Methods("POST")
 
 	// listen for connections
 	port := os.Getenv("HTTP_PORT")
