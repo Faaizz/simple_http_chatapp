@@ -27,6 +27,7 @@ func init() {
 }
 
 // A DynamoDBAdapter provides a layer of abstraction for interaction an underlying AWS DynamoDB database
+// It expects a DynamoDB table with a string-valued partition key "username".
 type DynamoDBAdapter struct {
 	TableName string
 	User      User
@@ -83,24 +84,22 @@ func (dba *DynamoDBAdapter) PutConn(ctx context.Context, pcIn User) error {
 
 // CheckUsername checks if username already exists on DynamDB table
 func (dba *DynamoDBAdapter) CheckUsername(ctx context.Context, username string) error {
-	in := dynamodb.ScanInput{
+	in := dynamodb.GetItemInput{
 		TableName: aws.String(dba.TableName),
-		FilterExpression: aws.String(
-			"username = :val",
-		),
-		ExpressionAttributeValues: map[string]dynamodbtypes.AttributeValue{
-			":val": &dynamodbtypes.AttributeValueMemberS{
+		Key: map[string]dynamodbtypes.AttributeValue{
+			"username": &dynamodbtypes.AttributeValueMemberS{
 				Value: username,
 			},
 		},
+		ConsistentRead: aws.Bool(true),
 	}
 
-	out, err := ddbSvc.Scan(ctx, &in)
+	out, err := ddbSvc.GetItem(ctx, &in)
 	if err != nil {
 		return err
 	}
 
-	if out.Count <= 0 {
+	if len(out.Item) <= 0 {
 		return nil
 	}
 
