@@ -78,20 +78,19 @@ func (dba *DynamoDBAdapter) PutConn(ctx context.Context, pcIn User) error {
 
 // CheckUsername checks if username already exists on DynamDB table
 func (dba *DynamoDBAdapter) CheckUsername(ctx context.Context, username string) error {
-	in := dynamodb.GetItemInput{
+	in := dynamodb.ScanInput{
 		TableName: aws.String(dba.TableName),
-		Key: map[string]dynamodbtypes.AttributeValue{
-			"username": &dynamodbtypes.AttributeValueMemberS{
-				Value: username,
-			},
-		},
+		FilterExpression: aws.String(
+			fmt.Sprintf("username = %s", username),
+		),
 	}
-	out, err := ddbSvc.GetItem(ctx, &in)
+
+	out, err := ddbSvc.Scan(ctx, &in)
 	if err != nil {
 		return err
 	}
 
-	if out.Item == nil {
+	if out.Count <= 0 {
 		return nil
 	}
 
