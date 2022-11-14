@@ -19,7 +19,8 @@ func CheckExists(tableName string) error {
 	return dba.CheckExists(context.TODO())
 }
 
-func PutConn(pcIn types.PutConnInput) error {
+// PutConn adds an entry into the table with a connectionId, username pair
+func PutConn(pcIn types.User) error {
 	return dba.PutConn(context.TODO(), pcIn)
 }
 

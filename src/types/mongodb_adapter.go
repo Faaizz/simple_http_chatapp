@@ -25,7 +25,7 @@ func (dba *MongoDBAdapter) CheckExists(ctx context.Context) error {
 }
 
 // PutConn inserts a username and connectionId in the underlying DynamoDB table
-func (dba *MongoDBAdapter) PutConn(ctx context.Context, pcIn PutConnInput) error {
+func (dba *MongoDBAdapter) PutConn(ctx context.Context, pcIn User) error {
 	err := dba.CheckUsername(ctx, pcIn.Username)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func (dba *MongoDBAdapter) PutConn(ctx context.Context, pcIn PutConnInput) error
 
 // CheckUsername checks if username already exists on DynamoDB table
 func (dba *MongoDBAdapter) CheckUsername(ctx context.Context, username string) error {
-	var res PutConnInput
+	var res User
 
 	col := dba.Client.Database(dba.DBName).Collection(dba.TableName)
 	err := col.FindOne(

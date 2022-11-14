@@ -47,7 +47,7 @@ func (dba *DynamoDBAdapter) CheckExists(ctx context.Context) error {
 }
 
 // PutConn inserts a username and connectionId in the underlying DynamoDB table
-func (dba *DynamoDBAdapter) PutConn(ctx context.Context, pcIn PutConnInput) error {
+func (dba *DynamoDBAdapter) PutConn(ctx context.Context, pcIn User) error {
 	err := dba.CheckUsername(ctx, pcIn.Username)
 	if err != nil {
 		return err

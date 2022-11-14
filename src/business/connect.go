@@ -20,7 +20,7 @@ func init() {
 }
 
 func ConnectHandler(w http.ResponseWriter, r *http.Request) {
-	var connIn types.ConnInput
+	var connIn types.User
 
 	err := json.NewDecoder(r.Body).Decode(&connIn)
 	if err != nil {
@@ -29,7 +29,7 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "could not decode ConnIn")
 	}
 
-	err = db.PutConn(types.PutConnInput{
+	err = db.PutConn(types.User{
 		ConnectionID: connIn.ConnectionID,
 		Username:     connIn.Username,
 	})
