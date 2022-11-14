@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// A DynamoDBAdapter provides a layer of abstraction for interaction an underlying AWS DynamoDB database
+// A MongoDBAdapter provides a layer of abstraction for interaction an underlying AWS MongoDB database
 type MongoDBAdapter struct {
 	Client    *mongo.Client
 	DBName    string
@@ -25,7 +25,7 @@ func (dba *MongoDBAdapter) CheckExists(ctx context.Context) error {
 	return nil
 }
 
-// PutConn inserts a username and connectionId in the underlying DynamoDB table
+// PutConn inserts a username and connectionId in the underlying MongoDB table
 func (dba *MongoDBAdapter) PutConn(ctx context.Context, pcIn User) error {
 	err := dba.CheckUsername(ctx, pcIn.Username)
 	if err != nil {
@@ -49,7 +49,7 @@ func (dba *MongoDBAdapter) PutConn(ctx context.Context, pcIn User) error {
 	return nil
 }
 
-// CheckUsername checks if username already exists on DynamoDB table
+// CheckUsername checks if username already exists on MongoDB table
 func (dba *MongoDBAdapter) CheckUsername(ctx context.Context, username string) error {
 	var res User
 
