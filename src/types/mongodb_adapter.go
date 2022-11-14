@@ -59,3 +59,8 @@ func (dba *MongoDBAdapter) CheckUsername(ctx context.Context, username string) e
 
 	return fmt.Errorf("username '%s' already exists", username)
 }
+
+// AvailableUsers lists available users and their connection IDs
+func (dba *MongoDBAdapter) AvailableUsers(ctx context.Context) ([]User, error) {
+	return []User{}, nil
+}
