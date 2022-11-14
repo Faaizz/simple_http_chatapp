@@ -27,6 +27,7 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 		logger.Debugln(err)
 		w.WriteHeader(400)
 		fmt.Fprintf(w, "could not decode ConnIn")
+		return
 	}
 
 	err = db.PutConn(types.User{
@@ -36,6 +37,10 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Debugln(err)
 		fmt.Fprintf(w, "could not initiate connection: %s", err)
+		return
+	}
+	if connIn.ConnectionID == "" || connIn.Username == "" {
+		fmt.Fprint(w, "could not initiate connection. 'connectionId' and 'username' required")
 		return
 	}
 

@@ -14,6 +14,7 @@ func DisconnectHandler(w http.ResponseWriter, r *http.Request) {
 		logger.Debugln(err)
 		w.WriteHeader(400)
 		fmt.Fprintf(w, "could not disconnect")
+		return
 	}
 
 	fmt.Fprintln(w, "disconnected")
