@@ -36,3 +36,7 @@ func Delete(data map[string]string) error {
 func GetUserConnId(username string) (string, error) {
 	return "connectionId", nil
 }
+
+func Disconnect() error {
+	return dba.Disconnect(context.TODO())
+}
