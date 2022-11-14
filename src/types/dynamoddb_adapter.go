@@ -2,6 +2,7 @@ package types
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -95,4 +96,53 @@ func (dba *DynamoDBAdapter) CheckUsername(ctx context.Context, username string) 
 	}
 
 	return fmt.Errorf("username '%s' already exists", username)
+}
+
+// AvailableUsers lists available users and their connection IDs
+// Possible bug: return payload exceeds maximum dataset size limit of 1 MB
+func (dba *DynamoDBAdapter) AvailableUsers(ctx context.Context) ([]User, error) {
+	in := &dynamodb.ScanInput{
+		TableName: &dba.TableName,
+	}
+
+	out, err := ddbSvc.Scan(
+		ctx,
+		in,
+	)
+	if err != nil {
+		return []User{}, err
+	}
+
+	au := make([]User, out.Count)
+	for idx, item := range out.Items {
+
+		connId := item["connectionId"]
+		var connIdStr string
+		switch v := connId.(type) {
+		case *dynamodbtypes.AttributeValueMemberS:
+			connIdStr = v.Value
+		default:
+			connIdStr = ""
+		}
+
+		username := item["username"]
+		var usernameStr string
+		switch v := username.(type) {
+		case *dynamodbtypes.AttributeValueMemberS:
+			usernameStr = v.Value
+		default:
+			usernameStr = ""
+		}
+
+		if connIdStr == "" || usernameStr == "" {
+			return []User{}, errors.New("could not decode response")
+		}
+
+		au[idx] = User{
+			ConnectionID: connIdStr,
+			Username:     usernameStr,
+		}
+	}
+
+	return au, nil
 }

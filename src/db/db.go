@@ -24,6 +24,11 @@ func PutConn(pcIn types.User) error {
 	return dba.PutConn(context.TODO(), pcIn)
 }
 
+// AvailableUsers lists available users and their connection IDs
+func AvailableUsers() ([]types.User, error) {
+	return dba.AvailableUsers(context.TODO())
+}
+
 func Delete(data map[string]string) error {
 	return nil
 }

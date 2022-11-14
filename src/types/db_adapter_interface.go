@@ -13,4 +13,5 @@ type DBAdapter interface {
 	SetTableName(string)
 	CheckExists(context.Context) error
 	PutConn(context.Context, User) error
+	AvailableUsers(ctx context.Context) ([]User, error)
 }

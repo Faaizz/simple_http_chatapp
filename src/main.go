@@ -52,6 +52,7 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/connect", business.ConnectHandler).Methods("POST")
+	r.HandleFunc("/online", business.OnlineHandler).Methods("GET")
 
 	// listen for connections
 	port := os.Getenv("HTTP_PORT")
