@@ -76,3 +76,8 @@ func (dba *MongoDBAdapter) SetUser(ctx context.Context, u User) {
 func (dba *MongoDBAdapter) AvailableUsers(ctx context.Context) ([]User, error) {
 	return []User{}, nil
 }
+
+// Disconnect disconnects current User by deleting the user from DB
+func (dba *MongoDBAdapter) Disconnect(context.Context) error {
+	return nil
+}

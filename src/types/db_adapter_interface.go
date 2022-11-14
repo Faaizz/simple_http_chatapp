@@ -15,4 +15,5 @@ type DBAdapter interface {
 	PutConn(context.Context, User) error
 	SetUser(context.Context, User)
 	AvailableUsers(ctx context.Context) ([]User, error)
+	Disconnect(context.Context) error
 }

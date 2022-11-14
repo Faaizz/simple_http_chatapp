@@ -169,3 +169,27 @@ func (dba *DynamoDBAdapter) AvailableUsers(ctx context.Context) ([]User, error) 
 
 	return au, nil
 }
+
+// Disconnect disconnects current User by deleting the user from DB
+func (dba *DynamoDBAdapter) Disconnect(ctx context.Context) error {
+	if dba.User.Username == "" {
+		return errors.New("no connected")
+	}
+	in := &dynamodb.DeleteItemInput{
+		TableName: &dba.TableName,
+		Key: map[string]dynamodbtypes.AttributeValue{
+			"username": &dynamodbtypes.AttributeValueMemberS{
+				Value: dba.User.Username,
+			},
+		},
+	}
+
+	_, err := ddbSvc.DeleteItem(ctx, in)
+	if err != nil {
+		return err
+	}
+
+	dba.User = User{}
+
+	return nil
+}
