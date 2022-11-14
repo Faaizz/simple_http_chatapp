@@ -13,6 +13,7 @@ type MongoDBAdapter struct {
 	Client    *mongo.Client
 	DBName    string
 	TableName string // collection name
+	User      User
 }
 
 func (dba *MongoDBAdapter) SetTableName(tn string) {
@@ -38,7 +39,14 @@ func (dba *MongoDBAdapter) PutConn(ctx context.Context, pcIn User) error {
 			{Key: "connectionId", Value: pcIn.ConnectionID},
 		},
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	// set current user
+	dba.SetUser(ctx, pcIn)
+
+	return nil
 }
 
 // CheckUsername checks if username already exists on DynamoDB table
@@ -58,6 +66,10 @@ func (dba *MongoDBAdapter) CheckUsername(ctx context.Context, username string) e
 	}
 
 	return fmt.Errorf("username '%s' already exists", username)
+}
+
+func (dba *MongoDBAdapter) SetUser(ctx context.Context, u User) {
+	dba.User = u
 }
 
 // AvailableUsers lists available users and their connection IDs

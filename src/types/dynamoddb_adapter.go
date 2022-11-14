@@ -29,6 +29,7 @@ func init() {
 // A DynamoDBAdapter provides a layer of abstraction for interaction an underlying AWS DynamoDB database
 type DynamoDBAdapter struct {
 	TableName string
+	User      User
 }
 
 func (dba *DynamoDBAdapter) SetTableName(tn string) {
@@ -74,6 +75,9 @@ func (dba *DynamoDBAdapter) PutConn(ctx context.Context, pcIn User) error {
 		return err
 	}
 
+	// set current user
+	dba.SetUser(ctx, pcIn)
+
 	return nil
 }
 
@@ -96,6 +100,10 @@ func (dba *DynamoDBAdapter) CheckUsername(ctx context.Context, username string) 
 	}
 
 	return fmt.Errorf("username '%s' already exists", username)
+}
+
+func (dba *DynamoDBAdapter) SetUser(ctx context.Context, u User) {
+	dba.User = u
 }
 
 // AvailableUsers lists available users and their connection IDs
