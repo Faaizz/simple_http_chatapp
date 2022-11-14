@@ -86,8 +86,13 @@ func (dba *DynamoDBAdapter) CheckUsername(ctx context.Context, username string) 
 	in := dynamodb.ScanInput{
 		TableName: aws.String(dba.TableName),
 		FilterExpression: aws.String(
-			fmt.Sprintf("username = %s", username),
+			"username = :val",
 		),
+		ExpressionAttributeValues: map[string]dynamodbtypes.AttributeValue{
+			":val": &dynamodbtypes.AttributeValueMemberS{
+				Value: username,
+			},
+		},
 	}
 
 	out, err := ddbSvc.Scan(ctx, &in)
@@ -111,6 +116,17 @@ func (dba *DynamoDBAdapter) SetUser(ctx context.Context, u User) {
 func (dba *DynamoDBAdapter) AvailableUsers(ctx context.Context) ([]User, error) {
 	in := &dynamodb.ScanInput{
 		TableName: &dba.TableName,
+	}
+
+	if dba.User.Username != "" {
+		in.FilterExpression = aws.String(
+			"username <> :val",
+		)
+		in.ExpressionAttributeValues = map[string]dynamodbtypes.AttributeValue{
+			":val": &dynamodbtypes.AttributeValueMemberS{
+				Value: dba.User.Username,
+			},
+		}
 	}
 
 	out, err := ddbSvc.Scan(
