@@ -25,8 +25,8 @@ func PutConn(pcIn types.User) error {
 }
 
 // AvailableUsers lists available users and their connection IDs
-func AvailableUsers() ([]types.User, error) {
-	return dba.AvailableUsers(context.TODO())
+func AvailableUsers(u types.User) ([]types.User, error) {
+	return dba.AvailableUsers(context.TODO(), u)
 }
 
 func Delete(data map[string]string) error {
@@ -37,6 +37,6 @@ func GetUserConnId(username string) (string, error) {
 	return "connectionId", nil
 }
 
-func Disconnect() error {
-	return dba.Disconnect(context.TODO())
+func Disconnect(u types.User) error {
+	return dba.Disconnect(context.TODO(), u)
 }

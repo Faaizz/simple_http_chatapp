@@ -73,11 +73,11 @@ func (dba *MongoDBAdapter) SetUser(ctx context.Context, u User) {
 }
 
 // AvailableUsers lists available users and their connection IDs
-func (dba *MongoDBAdapter) AvailableUsers(ctx context.Context) ([]User, error) {
+func (dba *MongoDBAdapter) AvailableUsers(ctx context.Context, u User) ([]User, error) {
 	return []User{}, nil
 }
 
 // Disconnect disconnects current User by deleting the user from DB
-func (dba *MongoDBAdapter) Disconnect(context.Context) error {
+func (dba *MongoDBAdapter) Disconnect(ctx context.Context, u User) error {
 	return nil
 }

@@ -10,5 +10,6 @@ type User struct {
 type Message struct {
 	ConnectionID string `json:"connectionId" bson:"connectionId"`
 	Message      string `json:"message" bson:"message"`
+	Username     string `json:"username" bson:"username,omitempty"`
 	FromUsername string `json:"from_username" bson:"from_username"`
 }

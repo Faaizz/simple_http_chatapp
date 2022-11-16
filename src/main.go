@@ -59,8 +59,8 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/connect", business.ConnectHandler).Methods("POST")
-	r.HandleFunc("/online", business.OnlineHandler).Methods("GET")
-	r.HandleFunc("/disconnect", business.DisconnectHandler).Methods("GET")
+	r.HandleFunc("/online", business.OnlineHandler).Methods("POST")
+	r.HandleFunc("/disconnect", business.DisconnectHandler).Methods("POST")
 	r.HandleFunc("/message", business.MessageHandler).Methods("POST")
 
 	// listen for connections

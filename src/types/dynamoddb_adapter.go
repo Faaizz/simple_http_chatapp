@@ -30,7 +30,6 @@ func init() {
 // It expects a DynamoDB table with a string-valued partition key "username".
 type DynamoDBAdapter struct {
 	TableName string
-	User      User
 }
 
 func (dba *DynamoDBAdapter) SetTableName(tn string) {
@@ -76,9 +75,6 @@ func (dba *DynamoDBAdapter) PutConn(ctx context.Context, pcIn User) error {
 		return err
 	}
 
-	// set current user
-	dba.SetUser(ctx, pcIn)
-
 	return nil
 }
 
@@ -106,24 +102,20 @@ func (dba *DynamoDBAdapter) CheckUsername(ctx context.Context, username string) 
 	return fmt.Errorf("username '%s' already exists", username)
 }
 
-func (dba *DynamoDBAdapter) SetUser(ctx context.Context, u User) {
-	dba.User = u
-}
-
 // AvailableUsers lists available users and their connection IDs
 // Possible bug: return payload exceeds maximum dataset size limit of 1 MB
-func (dba *DynamoDBAdapter) AvailableUsers(ctx context.Context) ([]User, error) {
+func (dba *DynamoDBAdapter) AvailableUsers(ctx context.Context, u User) ([]User, error) {
 	in := &dynamodb.ScanInput{
 		TableName: &dba.TableName,
 	}
 
-	if dba.User.Username != "" {
+	if u.Username != "" {
 		in.FilterExpression = aws.String(
 			"username <> :val",
 		)
 		in.ExpressionAttributeValues = map[string]dynamodbtypes.AttributeValue{
 			":val": &dynamodbtypes.AttributeValueMemberS{
-				Value: dba.User.Username,
+				Value: u.Username,
 			},
 		}
 	}
@@ -171,15 +163,15 @@ func (dba *DynamoDBAdapter) AvailableUsers(ctx context.Context) ([]User, error) 
 }
 
 // Disconnect disconnects current User by deleting the user from DB
-func (dba *DynamoDBAdapter) Disconnect(ctx context.Context) error {
-	if dba.User.Username == "" {
+func (dba *DynamoDBAdapter) Disconnect(ctx context.Context, u User) error {
+	if u.Username == "" {
 		return errors.New("no connected")
 	}
 	in := &dynamodb.DeleteItemInput{
 		TableName: &dba.TableName,
 		Key: map[string]dynamodbtypes.AttributeValue{
 			"username": &dynamodbtypes.AttributeValueMemberS{
-				Value: dba.User.Username,
+				Value: u.Username,
 			},
 		},
 	}
@@ -188,8 +180,6 @@ func (dba *DynamoDBAdapter) Disconnect(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-
-	dba.User = User{}
 
 	return nil
 }

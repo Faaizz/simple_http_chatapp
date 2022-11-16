@@ -13,7 +13,6 @@ type DBAdapter interface {
 	SetTableName(string)
 	CheckExists(context.Context) error
 	PutConn(context.Context, User) error
-	SetUser(context.Context, User)
-	AvailableUsers(ctx context.Context) ([]User, error)
-	Disconnect(context.Context) error
+	AvailableUsers(context.Context, User) ([]User, error)
+	Disconnect(context.Context, User) error
 }
