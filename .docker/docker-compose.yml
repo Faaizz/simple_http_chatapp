@@ -1,12 +1,35 @@
 version: "3"
 
 services:
+  simple_http_chatapp:
+    depends_on:
+      - table-creator
+    image: simple_http_chatapp
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
+      DYNAMODB_ENDPOINT_URL: http://dynamodb-local:8000
+      DYNAMODB_TABLE_NAME: ${DYNAMODB_TABLE_NAME}
+      DB_TYPE: ${DB_TYPE}
+      HTTP_PORT: ${HTTP_PORT}
+      MONGODB_USER: ${MONGODB_USER}
+      MONGODB_PASSWORD: ${MONGODB_PASSWORD}
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: "27017"
+      MONGODB_DATABASE: ${MONGODB_DATABASE}
+    ports:
+      - "${HTTP_PORT}:${HTTP_PORT}"
+
   mongodb:
     image: mongo
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
     ports:
       - "27017:27017"
 
@@ -20,13 +43,11 @@ services:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
 
-  app-node:
+  table-creator:
     depends_on:
       - dynamodb-local
     image: banst/awscli
     container_name: app-node
-    ports:
-     - "8080:8080"
     depends_on:
       - dynamodb-local
     environment:
