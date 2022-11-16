@@ -21,7 +21,7 @@ func main() {
 
 	// setup DB
 	dbType := os.Getenv("DB_TYPE")
-	tn := os.Getenv("TABLE_NAME")
+	tn := os.Getenv("DYNAMODB_TABLE_NAME")
 
 	var dba types.DBAdapter
 

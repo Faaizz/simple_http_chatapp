@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -18,7 +19,19 @@ var ddbSvc *dynamodb.Client
 func init() {
 	logger = misc.Logger()
 
-	cfg, err := config.LoadDefaultConfig(context.TODO())
+	epUrl := os.Getenv("DYNAMODB_ENDPOINT_URL")
+
+	customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+		if epUrl != "" {
+			return aws.Endpoint{
+				URL: epUrl,
+			}, nil
+		}
+
+		return aws.Endpoint{}, &aws.EndpointNotFoundError{}
+	})
+
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithEndpointResolverWithOptions(customResolver))
 	if err != nil {
 		logger.Fatalf("could not initialize AWS client %v", err)
 	}
