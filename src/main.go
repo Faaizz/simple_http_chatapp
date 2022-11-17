@@ -21,7 +21,9 @@ func main() {
 
 	// setup DB
 	dbType := os.Getenv("DB_TYPE")
+	logger.Infof("DB_TYPE: %s\n", dbType)
 	tn := os.Getenv("DYNAMODB_TABLE_NAME")
+	logger.Infof("DYNAMODB_TABLE_NAME: %s\n", tn)
 
 	var dba types.DBAdapter
 
@@ -68,6 +70,7 @@ func main() {
 	if port == "" {
 		port = "80"
 	}
+	logger.Infof("HTTP_PORT: %s", port)
 
 	listenIpPort := fmt.Sprintf(":%s", port)
 
