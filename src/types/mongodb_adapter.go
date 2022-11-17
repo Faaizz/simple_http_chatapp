@@ -13,7 +13,6 @@ type MongoDBAdapter struct {
 	Client    *mongo.Client
 	DBName    string
 	TableName string // collection name
-	User      User
 }
 
 func (dba *MongoDBAdapter) SetTableName(tn string) {
@@ -25,8 +24,22 @@ func (dba *MongoDBAdapter) CheckExists(ctx context.Context) error {
 	return nil
 }
 
+func (dba *MongoDBAdapter) PutConn(ctx context.Context, pcIn Connection) error {
+	_, err := dba.Client.Database(dba.DBName).Collection(dba.TableName).InsertOne(
+		ctx,
+		bson.D{
+			{Key: "connectionId", Value: pcIn.ConnectionID},
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // PutConn inserts a username and connectionId in the underlying MongoDB table
-func (dba *MongoDBAdapter) PutConn(ctx context.Context, pcIn User) error {
+func (dba *MongoDBAdapter) SetUsername(ctx context.Context, pcIn User) error {
 	err := dba.CheckUsername(ctx, pcIn.Username)
 	if err != nil {
 		return err
@@ -42,9 +55,6 @@ func (dba *MongoDBAdapter) PutConn(ctx context.Context, pcIn User) error {
 	if err != nil {
 		return err
 	}
-
-	// set current user
-	dba.SetUser(ctx, pcIn)
 
 	return nil
 }
@@ -66,10 +76,6 @@ func (dba *MongoDBAdapter) CheckUsername(ctx context.Context, username string) e
 	}
 
 	return fmt.Errorf("username '%s' already exists", username)
-}
-
-func (dba *MongoDBAdapter) SetUser(ctx context.Context, u User) {
-	dba.User = u
 }
 
 // AvailableUsers lists available users and their connection IDs

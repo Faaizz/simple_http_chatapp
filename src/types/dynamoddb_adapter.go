@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
 	"github.com/Faaizz/simple_http_chatapp/misc"
@@ -40,7 +41,7 @@ func init() {
 }
 
 // A DynamoDBAdapter provides a layer of abstraction for interaction an underlying AWS DynamoDB database
-// It expects a DynamoDB table with a string-valued partition key "username".
+// It expects a DynamoDB table with a string-valued partition key "connectionId".
 type DynamoDBAdapter struct {
 	TableName string
 }
@@ -61,8 +62,31 @@ func (dba *DynamoDBAdapter) CheckExists(ctx context.Context) error {
 	return nil
 }
 
-// PutConn inserts a username and connectionId in the underlying DynamoDB table
-func (dba *DynamoDBAdapter) PutConn(ctx context.Context, pcIn User) error {
+// PutConn inserts a connectionId in the underlying DynamoDB table
+func (dba *DynamoDBAdapter) PutConn(ctx context.Context, pcIn Connection) error {
+
+	in := dynamodb.PutItemInput{
+		TableName: aws.String(dba.TableName),
+		Item: map[string]dynamodbtypes.AttributeValue{
+			"connectionId": &dynamodbtypes.AttributeValueMemberS{
+				Value: pcIn.ConnectionID,
+			},
+		},
+	}
+
+	_, err := ddbSvc.PutItem(
+		ctx,
+		&in,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// SetUsername sets the username of an existing connection
+func (dba *DynamoDBAdapter) SetUsername(ctx context.Context, pcIn User) error {
 	err := dba.CheckUsername(ctx, pcIn.Username)
 	if err != nil {
 		return err
@@ -93,22 +117,23 @@ func (dba *DynamoDBAdapter) PutConn(ctx context.Context, pcIn User) error {
 
 // CheckUsername checks if username already exists on DynamDB table
 func (dba *DynamoDBAdapter) CheckUsername(ctx context.Context, username string) error {
-	in := dynamodb.GetItemInput{
-		TableName: aws.String(dba.TableName),
-		Key: map[string]dynamodbtypes.AttributeValue{
-			"username": &dynamodbtypes.AttributeValueMemberS{
+	in := dynamodb.ScanInput{
+		TableName:        &dba.TableName,
+		FilterExpression: aws.String("username = :val"),
+		ExpressionAttributeValues: map[string]dynamodbtypes.AttributeValue{
+			":val": &types.AttributeValueMemberS{
 				Value: username,
 			},
 		},
 		ConsistentRead: aws.Bool(true),
 	}
 
-	out, err := ddbSvc.GetItem(ctx, &in)
+	out, err := ddbSvc.Scan(ctx, &in)
 	if err != nil {
 		return err
 	}
 
-	if len(out.Item) <= 0 {
+	if out.Count <= 0 {
 		return nil
 	}
 
@@ -162,7 +187,7 @@ func (dba *DynamoDBAdapter) AvailableUsers(ctx context.Context, u User) ([]User,
 			usernameStr = ""
 		}
 
-		if connIdStr == "" || usernameStr == "" {
+		if connIdStr == "" {
 			return []User{}, errors.New("could not decode response")
 		}
 

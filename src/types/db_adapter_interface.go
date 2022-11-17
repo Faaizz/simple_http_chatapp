@@ -12,7 +12,8 @@ var logger *zap.SugaredLogger
 type DBAdapter interface {
 	SetTableName(string)
 	CheckExists(context.Context) error
-	PutConn(context.Context, User) error
+	PutConn(context.Context, Connection) error
+	SetUsername(context.Context, User) error
 	AvailableUsers(context.Context, User) ([]User, error)
 	Disconnect(context.Context, User) error
 }

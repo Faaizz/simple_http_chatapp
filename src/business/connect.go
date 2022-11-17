@@ -33,8 +33,9 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, msg)
 		return
 	}
+	logger.Debugf("request body: \n%v", string(rBytes))
 
-	var connIn types.User
+	var connIn types.Connection
 
 	err = json.NewDecoder(bytes.NewReader(rBytes)).Decode(&connIn)
 	if err != nil {
@@ -46,23 +47,25 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.PutConn(types.User{
+	err = db.PutConn(types.Connection{
 		ConnectionID: connIn.ConnectionID,
-		Username:     connIn.Username,
 	})
 	if err != nil {
 		logger.Errorln(err)
-		msg := fmt.Sprintf("could not initiate connection: %s", err)
+		msg := "could not initiate connection"
 		logger.Errorln(msg)
 		fmt.Fprint(w, msg)
 		return
 	}
-	if connIn.ConnectionID == "" || connIn.Username == "" {
-		fmt.Fprint(w, "could not initiate connection. 'connectionId' and 'username' required")
+	if connIn.ConnectionID == "" {
+		msg := "could not initiate connection. 'connectionId' required"
+		logger.Errorln(msg)
+		w.WriteHeader(400)
+		fmt.Fprint(w, msg)
 		return
 	}
 
-	msg := fmt.Sprintf("connected username: %s with connection id: %s", connIn.Username, connIn.ConnectionID)
+	msg := fmt.Sprintf("connected user with connection id: %s", connIn.ConnectionID)
 	logger.Debugln(msg)
 	_, err = fmt.Fprintln(w, msg)
 	if err != nil {

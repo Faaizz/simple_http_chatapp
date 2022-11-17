@@ -23,6 +23,7 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, msg)
 		return
 	}
+	logger.Debugf("request body: \n%v", string(rBytes))
 
 	var inMsg types.Message
 
@@ -38,6 +39,7 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 	if inMsg.ConnectionID == "" || inMsg.FromUsername == "" || inMsg.Username == "" {
 		msg := "could not initiate connection. 'connectionId', 'from_username', and 'username' required"
 		logger.Errorln(msg)
+		w.WriteHeader(400)
 		fmt.Fprint(w, msg)
 		return
 	}
