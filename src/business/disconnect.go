@@ -1,9 +1,11 @@
 package business
 
 import (
-	"encoding/json"
+	"bytes"
 	"fmt"
+	"io"
 
+	"encoding/json"
 	"net/http"
 
 	"github.com/Faaizz/simple_http_chatapp/db"
@@ -11,22 +13,43 @@ import (
 )
 
 func DisconnectHandler(w http.ResponseWriter, r *http.Request) {
-	var u types.User
-	err := json.NewDecoder(r.Body).Decode(&u)
+	logger.Debugln("disconnecting user...")
+
+	rBytes, err := io.ReadAll(r.Body)
 	if err != nil {
-		logger.Debugln(err)
+		logger.Errorln(err)
+		msg := "could not decode request into bytes"
+		logger.Errorln(msg)
 		w.WriteHeader(400)
-		fmt.Fprintf(w, "could not decode input")
+		fmt.Fprint(w, msg)
+		return
+	}
+
+	var u types.User
+	err = json.NewDecoder(bytes.NewReader(rBytes)).Decode(&u)
+	if err != nil {
+		logger.Errorln(err)
+		msg := "could not decode input"
+		logger.Errorln(msg)
+		w.WriteHeader(400)
+		fmt.Fprint(w, msg)
 		return
 	}
 
 	err = db.Disconnect(u)
 	if err != nil {
-		logger.Debugln(err)
+		logger.Errorln(err)
+		msg := "could not disconnect"
+		logger.Errorln(msg)
 		w.WriteHeader(400)
-		fmt.Fprintf(w, "could not disconnect")
+		fmt.Fprint(w, msg)
 		return
 	}
 
-	fmt.Fprintln(w, "disconnected")
+	msg := fmt.Sprintf("disconnected user: %s", u.Username)
+	logger.Debugln(msg)
+	_, err = fmt.Fprintln(w, msg)
+	if err != nil {
+		logger.Errorln(err)
+	}
 }

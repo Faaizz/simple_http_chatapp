@@ -1,7 +1,9 @@
 package business
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 
 	"encoding/json"
 	"net/http"
@@ -11,27 +13,49 @@ import (
 )
 
 func MessageHandler(w http.ResponseWriter, r *http.Request) {
-	var inMsg types.Message
+	logger.Debug("sending message...")
 
-	err := json.NewDecoder(r.Body).Decode(&inMsg)
+	rBytes, err := io.ReadAll(r.Body)
 	if err != nil {
-		logger.Debugln(err)
-		w.WriteHeader(400)
-		fmt.Fprint(w, "invalid message")
+		logger.Errorln(err)
+		msg := "could not decode input"
+		logger.Errorln(msg)
+		fmt.Fprint(w, msg)
 		return
 	}
-	if inMsg.ConnectionID == "" || inMsg.FromUsername == "" {
-		fmt.Fprint(w, "could not initiate connection. 'connectionId' and 'from_username' required")
+
+	var inMsg types.Message
+
+	err = json.NewDecoder(bytes.NewReader(rBytes)).Decode(&inMsg)
+	if err != nil {
+		logger.Debugln(err)
+		msg := "could not decode input"
+		logger.Errorln(msg)
+		w.WriteHeader(400)
+		fmt.Fprint(w, msg)
+		return
+	}
+	if inMsg.ConnectionID == "" || inMsg.FromUsername == "" || inMsg.Username == "" {
+		msg := "could not initiate connection. 'connectionId', 'from_username', and 'username' required"
+		logger.Errorln(msg)
+		fmt.Fprint(w, msg)
 		return
 	}
 
 	err = msg.Message(inMsg.ConnectionID, inMsg.Message, inMsg.FromUsername)
 	if err != nil {
-		logger.Debugln(err)
+		logger.Errorln(err)
+		msg := "could not send message"
+		logger.Errorln(msg)
 		w.WriteHeader(400)
-		fmt.Fprint(w, "could not send message")
+		fmt.Fprint(w, msg)
 		return
 	}
 
-	fmt.Fprint(w, "message sent")
+	msg := fmt.Sprintf("sent message: %s\nto: %s\n", inMsg.Message, inMsg.Username)
+	logger.Debugln(msg)
+	_, err = fmt.Fprintln(w, msg)
+	if err != nil {
+		logger.Errorln(err)
+	}
 }
