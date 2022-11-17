@@ -24,14 +24,14 @@ services:
     ports:
       - "${HTTP_PORT}:${HTTP_PORT}"
 
-  mongodb:
-    image: mongo
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
-    ports:
-      - "27017:27017"
+  # mongodb:
+  #   image: mongo
+  #   restart: always
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER}
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+  #   ports:
+  #     - "27017:27017"
 
   dynamodb-local:
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
@@ -56,4 +56,4 @@ services:
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
       DYNAMODB_TABLE_NAME: ${DYNAMODB_TABLE_NAME}
     command:
-      dynamodb create-table --table-name ${DYNAMODB_TABLE_NAME} --attribute-definitions AttributeName=username,AttributeType=S --key-schema AttributeName=username,KeyType=HASH --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://dynamodb-local:8000 --region ${AWS_DEFAULT_REGION}
+      dynamodb create-table --table-name ${DYNAMODB_TABLE_NAME} --attribute-definitions AttributeName=connectionId,AttributeType=S --key-schema AttributeName=connectionId,KeyType=HASH --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://dynamodb-local:8000 --region ${AWS_DEFAULT_REGION}

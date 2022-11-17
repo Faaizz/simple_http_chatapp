@@ -1,5 +1,9 @@
 package types
 
+type Connection struct {
+	ConnectionID string `json:"connectionId"`
+}
+
 // User is a representation of a chat user
 type User struct {
 	ConnectionID string `json:"connectionId" bson:"connectionId,omitempty"`

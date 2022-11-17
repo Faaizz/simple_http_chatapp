@@ -20,8 +20,13 @@ func CheckExists(tableName string) error {
 }
 
 // PutConn adds an entry into the table with a connectionId, username pair
-func PutConn(pcIn types.User) error {
+func PutConn(pcIn types.Connection) error {
 	return dba.PutConn(context.TODO(), pcIn)
+}
+
+// PutConn adds an entry into the table with a connectionId, username pair
+func SetUsername(pcIn types.User) error {
+	return dba.SetUsername(context.TODO(), pcIn)
 }
 
 // AvailableUsers lists available users and their connection IDs
