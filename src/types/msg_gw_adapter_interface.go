@@ -5,5 +5,5 @@ import (
 )
 
 type MsgGwAdapter interface {
-	Message(context.Context, string, string, string) error
+	Message(context.Context, string, string, string, string) error
 }

@@ -12,6 +12,6 @@ func SetMsgGwAdapter(mgaInit types.MsgGwAdapter) {
 	mga = mgaInit
 }
 
-func Message(cID, msg, fromUsername string) error {
-	return mga.Message(context.TODO(), cID, msg, fromUsername)
+func Message(cID, msg, fromUsername, url string) error {
+	return mga.Message(context.TODO(), cID, msg, fromUsername, url)
 }

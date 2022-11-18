@@ -36,15 +36,15 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, msg)
 		return
 	}
-	if inMsg.ConnectionID == "" || inMsg.FromUsername == "" || inMsg.Username == "" {
-		msg := "could not initiate connection. 'connectionId', 'from_username', and 'username' required"
+	if inMsg.ConnectionID == "" || inMsg.FromUsername == "" || inMsg.Username == "" || inMsg.URL == "" {
+		msg := "could not initiate connection. 'connectionId', 'from_username', 'username', and 'url' required"
 		logger.Errorln(msg)
 		w.WriteHeader(400)
 		fmt.Fprint(w, msg)
 		return
 	}
 
-	err = msg.Message(inMsg.ConnectionID, inMsg.Message, inMsg.FromUsername)
+	err = msg.Message(inMsg.ConnectionID, inMsg.Message, inMsg.FromUsername, inMsg.URL)
 	if err != nil {
 		logger.Errorln(err)
 		msg := "could not send message"

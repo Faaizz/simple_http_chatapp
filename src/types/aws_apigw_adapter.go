@@ -12,26 +12,37 @@ import (
 type AWSApiGwAdapter struct {
 }
 
-var agmaSvc *awsagma.Client
-
-func init() {
+func (aaga *AWSApiGwAdapter) Spawn(url string) (*awsagma.Client, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
-		logger.Fatalf("could not initialize AWS client %v", err)
+		logger.Errorf("could not initialize AWS client %v", err)
+		return nil, err
 	}
 
-	agmaSvc = awsagma.NewFromConfig(cfg)
+	erFunc := awsagma.EndpointResolverFromURL(url)
+	agmaSvc := awsagma.NewFromConfig(
+		cfg,
+		awsagma.WithEndpointResolver(erFunc),
+	)
+
+	return agmaSvc, nil
 }
 
-func (aaga *AWSApiGwAdapter) Message(ctx context.Context, cID, msg, fromUsername string) error {
+func (aaga *AWSApiGwAdapter) Message(ctx context.Context, cID, msg, fromUsername, url string) error {
 	dataStr := fmt.Sprintf("%s: %s", fromUsername, msg)
+
+	client, err := aaga.Spawn(url)
+	if err != nil {
+		logger.Errorln(err)
+		return err
+	}
 
 	in := &awsagma.PostToConnectionInput{
 		ConnectionId: aws.String(cID),
 		Data:         []byte(dataStr),
 	}
 
-	_, err := agmaSvc.PostToConnection(ctx, in)
+	_, err = client.PostToConnection(ctx, in)
 
 	return err
 }
