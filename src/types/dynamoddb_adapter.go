@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
 	"github.com/Faaizz/simple_http_chatapp/misc"
@@ -121,7 +120,7 @@ func (dba *DynamoDBAdapter) CheckUsername(ctx context.Context, username string) 
 		TableName:        &dba.TableName,
 		FilterExpression: aws.String("username = :val"),
 		ExpressionAttributeValues: map[string]dynamodbtypes.AttributeValue{
-			":val": &types.AttributeValueMemberS{
+			":val": &dynamodbtypes.AttributeValueMemberS{
 				Value: username,
 			},
 		},
