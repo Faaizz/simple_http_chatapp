@@ -50,6 +50,18 @@ func OnlineHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get username of User
+	un, err := db.Username(u.ConnectionID)
+	if err != nil {
+		logger.Errorln(err)
+		msg := "could not obtain username"
+		logger.Errorln(msg)
+		w.WriteHeader(400)
+		fmt.Fprint(w, msg)
+		return
+	}
+
+	u.Username = un
 	users, err := db.AvailableUsers(u)
 	if err != nil {
 		logger.Errorln(err)
