@@ -84,6 +84,41 @@ func (dba *DynamoDBAdapter) PutConn(ctx context.Context, pcIn Connection) error 
 	return nil
 }
 
+// ConnectionID gets the connection ID associated with the specified username
+func (dba *DynamoDBAdapter) ConnectionID(ctx context.Context, un string) (string, error) {
+	in := dynamodb.ScanInput{
+		TableName:        &dba.TableName,
+		FilterExpression: aws.String("username = :val"),
+		ExpressionAttributeValues: map[string]dynamodbtypes.AttributeValue{
+			":val": &dynamodbtypes.AttributeValueMemberS{
+				Value: un,
+			},
+		},
+		ConsistentRead: aws.Bool(true),
+	}
+
+	out, err := ddbSvc.Scan(ctx, &in)
+	if err != nil {
+		logger.Errorln(err)
+		return "", err
+	}
+	if out.Count <= 0 {
+		err := errors.New("user not found")
+		logger.Errorln(err)
+		return "", err
+	}
+
+	connIDAtt := out.Items[0]["connectionId"]
+	connID, ok := connIDAtt.(*dynamodbtypes.AttributeValueMemberS)
+	if !ok {
+		err := errors.New("could not obtain connectionId")
+		logger.Errorln(err)
+		return "", err
+	}
+
+	return connID.Value, nil
+}
+
 // SetUsername sets the username of an existing connection
 func (dba *DynamoDBAdapter) SetUsername(ctx context.Context, pcIn User) error {
 	err := dba.CheckUsername(ctx, pcIn.Username)
@@ -112,6 +147,36 @@ func (dba *DynamoDBAdapter) SetUsername(ctx context.Context, pcIn User) error {
 	}
 
 	return nil
+}
+
+// Username gets the username associated with connID
+func (dba *DynamoDBAdapter) Username(ctx context.Context, connID string) (string, error) {
+	in := dynamodb.GetItemInput{
+		TableName: aws.String(dba.TableName),
+		Key: map[string]dynamodbtypes.AttributeValue{
+			"connectionId": &dynamodbtypes.AttributeValueMemberS{
+				Value: connID,
+			},
+		},
+	}
+
+	out, err := ddbSvc.GetItem(
+		ctx,
+		&in,
+	)
+	if err != nil {
+		logger.Errorln(err)
+		return "", err
+	}
+
+	unAtt, ok := out.Item["username"].(*dynamodbtypes.AttributeValueMemberS)
+	if !ok {
+		err := errors.New("could not obtain username")
+		logger.Errorln(err)
+		return "", err
+	}
+
+	return unAtt.Value, nil
 }
 
 // CheckUsername checks if username already exists on DynamDB table

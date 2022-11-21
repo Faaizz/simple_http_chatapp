@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Faaizz/simple_http_chatapp/db"
 	"github.com/Faaizz/simple_http_chatapp/msg"
 	"github.com/Faaizz/simple_http_chatapp/types"
 )
@@ -36,15 +37,33 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, msg)
 		return
 	}
-	if inMsg.ConnectionID == "" || inMsg.FromUsername == "" || inMsg.Username == "" || inMsg.URL == "" {
-		msg := "could not initiate connection. 'connectionId', 'from_username', 'username', and 'url' required"
+	if inMsg.ConnectionID == "" || inMsg.Username == "" || inMsg.URL == "" {
+		msg := "could not initiate connection. 'connectionId', 'username', and 'url' required"
 		logger.Errorln(msg)
 		w.WriteHeader(400)
 		fmt.Fprint(w, msg)
 		return
 	}
 
-	err = msg.Message(inMsg.ConnectionID, inMsg.Message, inMsg.FromUsername, inMsg.URL)
+	// get ConnectionID of the target User
+	targetConnectionID, err := db.ConnectionID(inMsg.Username)
+	if err != nil {
+		logger.Errorln(err)
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "could not get target connectionId")
+		return
+	}
+
+	// get username of source User
+	sourceUsername, err := db.Username(inMsg.ConnectionID)
+	if err != nil {
+		logger.Errorln(err)
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "could not get source username")
+		return
+	}
+
+	err = msg.Message(targetConnectionID, inMsg.Message, sourceUsername, inMsg.URL)
 	if err != nil {
 		logger.Errorln(err)
 		msg := "could not send message"

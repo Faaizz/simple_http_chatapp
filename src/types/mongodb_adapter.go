@@ -38,6 +38,11 @@ func (dba *MongoDBAdapter) PutConn(ctx context.Context, pcIn Connection) error {
 	return nil
 }
 
+// ConnectionID gets the connection ID associated with the specified username
+func (dba *MongoDBAdapter) ConnectionID(ctx context.Context, un string) (string, error) {
+	return "", nil
+}
+
 // PutConn inserts a username and connectionId in the underlying MongoDB table
 func (dba *MongoDBAdapter) SetUsername(ctx context.Context, pcIn User) error {
 	err := dba.CheckUsername(ctx, pcIn.Username)
@@ -57,6 +62,11 @@ func (dba *MongoDBAdapter) SetUsername(ctx context.Context, pcIn User) error {
 	}
 
 	return nil
+}
+
+// Username gets the username associated with connID
+func (dba *MongoDBAdapter) Username(ctx context.Context, connID string) (string, error) {
+	return "", nil
 }
 
 // CheckUsername checks if username already exists on MongoDB table

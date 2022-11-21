@@ -19,14 +19,24 @@ func CheckExists(tableName string) error {
 	return dba.CheckExists(context.TODO())
 }
 
-// PutConn adds an entry into the table with a connectionId, username pair
+// PutConn adds an entry into the table with a connectionId
 func PutConn(pcIn types.Connection) error {
 	return dba.PutConn(context.TODO(), pcIn)
 }
 
-// PutConn adds an entry into the table with a connectionId, username pair
+// ConnectionID gets the connection ID associated with the specified username
+func ConnectionID(un string) (string, error) {
+	return "", nil
+}
+
+// SetUsername adds a username entry into the table for the corresponding connectionId
 func SetUsername(pcIn types.User) error {
 	return dba.SetUsername(context.TODO(), pcIn)
+}
+
+// Username gets the username associated with connID
+func Username(connID string) (string, error) {
+	return "", nil
 }
 
 // AvailableUsers lists available users and their connection IDs
