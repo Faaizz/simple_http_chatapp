@@ -26,7 +26,7 @@ func PutConn(pcIn types.Connection) error {
 
 // ConnectionID gets the connection ID associated with the specified username
 func ConnectionID(un string) (string, error) {
-	return "", nil
+	return dba.ConnectionID(context.TODO(), un)
 }
 
 // SetUsername adds a username entry into the table for the corresponding connectionId
@@ -36,7 +36,7 @@ func SetUsername(pcIn types.User) error {
 
 // Username gets the username associated with connID
 func Username(connID string) (string, error) {
-	return "", nil
+	return dba.Username(context.TODO(), connID)
 }
 
 // AvailableUsers lists available users and their connection IDs
