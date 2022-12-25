@@ -7,7 +7,7 @@ services:
     image: simple_http_chatapp
     build:
       context: ..
-      dockerfile: .docker/Dockerfile
+      dockerfile: Dockerfile
     environment:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
@@ -48,8 +48,6 @@ services:
       - dynamodb-local
     image: banst/awscli
     container_name: app-node
-    depends_on:
-      - dynamodb-local
     environment:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
