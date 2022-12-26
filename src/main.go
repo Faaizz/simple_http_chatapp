@@ -65,6 +65,7 @@ func main() {
 	r.HandleFunc("/online", business.OnlineHandler).Methods("POST")
 	r.HandleFunc("/disconnect", business.DisconnectHandler).Methods("POST")
 	r.HandleFunc("/message", business.MessageHandler).Methods("POST")
+	r.HandleFunc("/healthz", business.HealthHandler).Methods("GET")
 
 	// listen for connections
 	port := os.Getenv("HTTP_PORT")

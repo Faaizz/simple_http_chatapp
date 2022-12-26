@@ -9,4 +9,6 @@ curl http://$HOST_ADDR:$HOST_PORT/disconnect -d '{"connectionId": "91123456"}' -
 # list users
 curl http://$HOST_ADDR:$HOST_PORT/online -d '{"connectionId": "91123456"}' --header "Content-Type:application/json"
 # message
-curl http://localhost:$HOST_PORT/message -d '{"connectionId": "911234567", "username": "Asiat33", "message": "Hello WebSocket", "url": ""}' --header "Content-Type:application/json"
+curl http://$HOST_ADDR:$HOST_PORT/message -d '{"connectionId": "911234567", "username": "Asiat33", "message": "Hello WebSocket", "url": ""}' --header "Content-Type:application/json"
+# health
+curl http://$HOST_ADDR:$HOST_PORT/healthz --header "Content-Type:application/json"
