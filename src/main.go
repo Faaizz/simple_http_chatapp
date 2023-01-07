@@ -67,6 +67,18 @@ func main() {
 	r.HandleFunc("/message", business.MessageHandler).Methods("POST")
 	r.HandleFunc("/healthz", business.HealthHandler).Methods("GET")
 
+	// setup middleware for AWS X-Ray
+	xda := os.Getenv("AWS_XRAY_DAEMON_ADDRESS")
+	if xda != "" {
+		err = misc.ConfigXRay(xda)
+		if err != nil {
+			logger.Fatalf("could not configure X-Ray %v", err)
+		}
+
+		r.Use(misc.XRayMw)
+		logger.Infoln("using X-Ray tracing")
+	}
+
 	// listen for connections
 	port := os.Getenv("HTTP_PORT")
 	if port == "" {
